@@ -1,3 +1,17 @@
 spring:
   application:
-    name: player
+    name: joueur
+  data:
+    mongodb:
+      host: mongo-joueur
+      port: 27017
+      username: admin
+      password: passadmin
+      authentication-database: admin
+      database: joueurdb
+  profiles:
+    active: docker
+
+auth:
+  hostname: api-auth
+  port: 8080

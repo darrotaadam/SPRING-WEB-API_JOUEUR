@@ -1,5 +1,5 @@
 services:
-  mongo-auth:
+  mongo-joueur:
     image: mongo
     container_name: mongo-joueur
     environment:
@@ -8,17 +8,25 @@ services:
     volumes:
       - mongo-joueur:/persist/joueur
     expose:
-      - 27017
+      - 27018
     ports:
       - "27018:27017"
     restart: on-failure
+    networks:
+      - gatcha-lan
 
   api-joueur:
     build: ../
     container_name: api-joueur
     ports:
       - "8081:8080"
-
+    networks:
+      - gatcha-lan
 
 volumes:
   mongo-joueur:
+
+
+networks:
+  gatcha-lan:
+    external: true
