@@ -19,4 +19,11 @@ public class PlayerService {
     }
 
 
+
+    public int getMaxExperienceForLevel(int level){
+        return (int) (50 * ( (double) level * 1.1)) ;
+    }
+
+
+
 }
