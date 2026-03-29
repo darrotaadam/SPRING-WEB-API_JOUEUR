@@ -9,7 +9,7 @@ public class PlayerProfileResponse {
     private String identifiant;
     private int level;
     private int experience;
-    List<Monstres> monstres;
+    private List<Monstres> monstres;
 
 
     public PlayerProfileResponse(String identifiant, int level, int experience, List<Monstres> monstres) {
