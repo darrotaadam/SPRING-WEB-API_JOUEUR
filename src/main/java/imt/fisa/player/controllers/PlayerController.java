@@ -3,10 +3,16 @@ package imt.fisa.player.controllers;
 
 import imt.fisa.player.controllers.httpdto.PlayerLevelResponse;
 import imt.fisa.player.controllers.httpdto.PlayerProfileResponse;
+import imt.fisa.player.exceptions.UnauthorizedException;
+import imt.fisa.player.persistence.dto.Monstres;
 import imt.fisa.player.persistence.dto.ProfileEntity;
+import imt.fisa.player.controllers.httpdto.PlayerMonstresResponse;
 import imt.fisa.player.persistence.repositories.ProfileRepository;
 import imt.fisa.player.services.AuthService;
 import imt.fisa.player.services.PlayerService;
+import io.micrometer.common.util.internal.logging.InternalLogger;
+import org.apache.coyote.Response;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +26,10 @@ public class PlayerController {
 
     private final PlayerService playerService;
     private final AuthService authService;
+
+    @Value("${INTERNAL_SECRET}")
+    private String internalSecret;
+
 
     public PlayerController(PlayerService playerService, AuthService authService) {
         this.playerService = playerService;
@@ -42,6 +52,18 @@ public class PlayerController {
         ));
     }
 
+    @GetMapping("/monstres")
+    public ResponseEntity<PlayerMonstresResponse> getPlayerMonstres(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
+        System.out.println("[*] /monstres");
+        String identifiant = authService.getUserFromToken(authorization);
+        ProfileEntity player = playerService.getProfile(identifiant);
+        return ResponseEntity.ok(new PlayerMonstresResponse(
+                player.getIdentifiant(),
+                player.getMonstres()
+        ));
+    }
+
+
     //la récupération du niveau du joueur
     @GetMapping("/level")
     public ResponseEntity<PlayerLevelResponse> getPlayerLevel(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization){
@@ -63,6 +85,53 @@ public class PlayerController {
         System.out.println("[*] /xp-progress");
         String identifiant = authService.getUserFromToken(authorization);
         ProfileEntity player = playerService.getProfile(identifiant);
-        player.setExperience(player.getExperience() + experienceGained);
+        playerService.gainExperience(player, experienceGained);
+
+        return ResponseEntity.ok(new PlayerProfileResponse(
+                player.getIdentifiant(),
+                player.getLevel(),
+                player.getExperience(),
+                player.getMonstres()
+        ));
     }
+
+
+    @PostMapping("/ajout-monstre")
+    public ResponseEntity<PlayerMonstresResponse> ajoutMonstre(
+            //@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            @RequestHeader("X-INTERNAL-API-KEY") String InternalApiKey,
+            String idMonstre,
+            String idJoueur
+    ) {
+        System.out.println("[*] /ajout-monstre");
+        if( !InternalApiKey.equals(internalSecret)){
+            throw new UnauthorizedException("Clé d'API interne invalide");
+        }
+
+        ProfileEntity player = playerService.getProfile(idJoueur);
+        playerService.ajoutMonstre(player, idMonstre);
+        return ResponseEntity.ok(new PlayerMonstresResponse(
+                player.getIdentifiant(),
+                player.getMonstres()
+        ));
+    }
+
+    @PostMapping("/supprime-monstre")
+    public ResponseEntity<PlayerMonstresResponse> supprimeMonstre(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            String idMonstre
+    ) {
+        System.out.println("[*] /supprime-monstre");
+        String identifiant = authService.getUserFromToken(authorization);
+        ProfileEntity player = playerService.getProfile(identifiant);
+        playerService.supprimeMonstre(player, idMonstre);
+        return ResponseEntity.ok(new PlayerMonstresResponse(
+                player.getIdentifiant(),
+                player.getMonstres()
+        ));
+    }
+
+
+
+
 }
