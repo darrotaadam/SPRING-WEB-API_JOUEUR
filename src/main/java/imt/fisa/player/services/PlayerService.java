@@ -10,8 +10,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class PlayerService {
 
-    @Autowired
+
     private ProfileRepository profileRepository;
+
+    @Autowired
+    public PlayerService(ProfileRepository profileRepository) {
+        this.profileRepository = profileRepository;
+    }
+
+
 
     public ProfileEntity getProfile(String identifiant){
         return profileRepository.findByIdentifiant(identifiant)

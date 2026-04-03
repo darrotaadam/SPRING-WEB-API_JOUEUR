@@ -1,8 +1,10 @@
 package imt.fisa.player;
 
 import imt.fisa.player.persistence.dto.ProfileEntity;
+import imt.fisa.player.persistence.repositories.ProfileRepository;
 import imt.fisa.player.services.PlayerService;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -13,6 +15,10 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 class PlayerApplicationTests {
 
 
+    @Autowired
+    private ProfileRepository profileRepository;
+
+    @Autowired PlayerService playerService;
 
 
     @Test
@@ -23,7 +29,7 @@ class PlayerApplicationTests {
 
         assertThat(playerTest.getExperience()).isEqualTo(0).withFailMessage("L'expérience initiale doit être 0");
 
-        var playerService = new PlayerService();
+
         playerService.gainExperience(playerTest, 50, true);
         assertThat(playerTest.getExperience()).isEqualTo(0).withFailMessage("L'expérience après gain doit être 0");
         assertThat(playerTest.getLevel()).isEqualTo(2).withFailMessage("Le niveau après gain doit être 2");

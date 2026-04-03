@@ -15,3 +15,8 @@ spring:
 auth:
   hostname: api-auth
   port: 8080
+
+  internal:
+    secret: ${INTERNAL_SECRET:default-secret-for-tests}
+
+
