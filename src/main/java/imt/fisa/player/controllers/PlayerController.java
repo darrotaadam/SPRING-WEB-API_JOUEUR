@@ -4,16 +4,16 @@ package imt.fisa.player.controllers;
 import imt.fisa.player.controllers.httpdto.PlayerLevelResponse;
 import imt.fisa.player.controllers.httpdto.PlayerProfileResponse;
 import imt.fisa.player.exceptions.UnauthorizedException;
-import imt.fisa.player.persistence.dto.Monstres;
+
 import imt.fisa.player.persistence.dto.ProfileEntity;
 import imt.fisa.player.controllers.httpdto.PlayerMonstresResponse;
-import imt.fisa.player.persistence.repositories.ProfileRepository;
+;
 import imt.fisa.player.services.AuthService;
 import imt.fisa.player.services.PlayerService;
-import io.micrometer.common.util.internal.logging.InternalLogger;
-import org.apache.coyote.Response;
+
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +27,7 @@ public class PlayerController {
     private final PlayerService playerService;
     private final AuthService authService;
 
-    @Value("${INTERNAL_SECRET}")
+    @Value("${auth.internal.secret}")
     private String internalSecret;
 
 
