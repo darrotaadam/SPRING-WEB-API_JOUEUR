@@ -18,6 +18,9 @@ public class ProfileEntity {
     private List<Monstres> monstres = new ArrayList<>();
 
 
+    public ProfileEntity() {
+    }
+
     public ProfileEntity(String identifiant, int level, int experience, List<Monstres> monstres) {
         this.identifiant = identifiant;
         this.level = level;
