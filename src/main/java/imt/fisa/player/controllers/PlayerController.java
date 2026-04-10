@@ -1,6 +1,7 @@
 package imt.fisa.player.controllers;
 
 
+import imt.fisa.player.controllers.httpdto.MonsterEntity;
 import imt.fisa.player.controllers.httpdto.PlayerLevelResponse;
 import imt.fisa.player.controllers.httpdto.PlayerProfileResponse;
 import imt.fisa.player.exceptions.UnauthorizedException;
@@ -14,6 +15,7 @@ import imt.fisa.player.services.PlayerService;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,6 +54,24 @@ public class PlayerController {
         ));
     }
 
+
+    @GetMapping(value ="/profile", params = "identifiant")
+    public ResponseEntity<PlayerProfileResponse> getPlayerProfile(
+            @RequestHeader("X-INTERNAL-API-KEY") String InternalApiKey,
+            String identifiant) {
+        System.out.println("[*] /profile?identifiant=" + identifiant);
+        if( !InternalApiKey.equals(internalSecret)){
+            throw new UnauthorizedException("Clé d'API interne invalide");
+        }
+        ProfileEntity player = playerService.getProfile(identifiant);
+        return ResponseEntity.ok(new PlayerProfileResponse(
+                player.getIdentifiant(),
+                player.getLevel(),
+                player.getExperience(),
+                player.getMonstres()
+        ));
+    }
+
     @GetMapping("/monstres")
     public ResponseEntity<PlayerMonstresResponse> getPlayerMonstres(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorization) {
         System.out.println("[*] /monstres");
@@ -61,6 +81,22 @@ public class PlayerController {
                 player.getIdentifiant(),
                 player.getMonstres()
         ));
+    }
+
+    @GetMapping(value="/monstre-detail", params = "id")
+    public ResponseEntity<MonsterEntity> getMonstreDetail(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorization,
+            String id
+    ){
+        String identifiant = authService.getUserFromToken(authorization);
+
+        ProfileEntity player = playerService.getProfile(identifiant);
+        if( ! playerService.playerHasThisMonster(player, id)){
+            throw new UnauthorizedException("Le joueur n'a pas ce monstre dans son profil.");
+        }
+
+        MonsterEntity monster = playerService.getMonstreDetail(id);
+        return ResponseEntity.ok(monster);
     }
 
 
